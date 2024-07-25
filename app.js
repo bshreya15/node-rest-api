@@ -1,15 +1,12 @@
 const express = require("express");
 const app = express();
 
+
+const process = require("./nodemon.json");
 const mongoose = require('mongoose')
+mongoose.connect("mongodb+srv://shreyabakshi2000:"+ process.env.MONGO_ATLAS_PW +"@cluster0.yoaulrm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
 
-mongoose.connect(
-    "mongodb+srv://shreyabakshi2000:"+ process.env.MONGO_ATLAS_PW +"@api-cluster.vpkuugd.mongodb.net/?retryWrites=true&w=majority&appName=api-cluster",
-    {
-    useMongoClient:true
-})
 
-//logging package for nodeJS
 const morgan = require("morgan");
 
 //body-parser
