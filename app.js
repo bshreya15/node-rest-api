@@ -1,6 +1,14 @@
 const express = require("express");
 const app = express();
 
+const mongoose = require('mongoose')
+
+mongoose.connect(
+    "mongodb+srv://shreyabakshi2000:"+ process.env.MONGO_ATLAS_PW +"@api-cluster.vpkuugd.mongodb.net/?retryWrites=true&w=majority&appName=api-cluster",
+    {
+    useMongoClient:true
+})
+
 //logging package for nodeJS
 const morgan = require("morgan");
 
