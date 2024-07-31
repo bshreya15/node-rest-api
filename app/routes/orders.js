@@ -4,6 +4,9 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const Order = require("../models/order");
 const Product = require("../models/product");
+const product = require("../models/product");
+
+
 router.get("/", (req, res, next) => {
   // res.status(200).json({
   //   message: "Handling GET requests in orders route",
@@ -11,6 +14,7 @@ router.get("/", (req, res, next) => {
 
   Order.find()
     .select("product quantity _id")
+    .populate('product','pName')
     .exec()
     .then((docs) => {
       const response = {
@@ -21,10 +25,8 @@ router.get("/", (req, res, next) => {
             _id: doc._id,
             product: doc.product,
             quantity: doc.quantity,
-
             request: {
               type: "GET",
-
               url: "http://localhost:3000/orders/" + doc._id,
             },
           };
@@ -95,6 +97,7 @@ router.post("/", (req, res, next) => {
         error: err,
       });
     });
+
   // const order = new Order({
   //   _id: new mongoose.Types.ObjectId(),
   //   product: req.body.productId,
@@ -105,7 +108,16 @@ router.post("/", (req, res, next) => {
   //   .save()
   //   .then((result) => {
   //     console.log(result);
-  //     res.status(201).json(result);
+  //     res.status(201).json({
+  //       message:'Order stored',
+  //       createdOrder:{
+  //         id: result._id,
+  //         product: result.product,
+  //         quantity: result.quantity,
+  //       },
+  //       request:'POST',
+  //       url:"http://localhost:3000/orders/" + result._id,
+  //     });
   //   })
   //   .catch((err) => {
   //     console.log(err);
@@ -123,10 +135,11 @@ router.get("/:orderId", (req, res, next) => {
 
   Order.findById(id)
     .select("product quantity _id")
+    .populate('product','pName')
     .exec()
     .then((order) => {
       console.log("From database", order);
-      if (doc) {
+      if (order) {
         res.status(200).json({
           order: order,
           request: {
@@ -137,7 +150,7 @@ router.get("/:orderId", (req, res, next) => {
         });
       } else {
         res.status(404).json({
-          message: "No valid entry found for provided ID",
+          message: "No valid order found for provided ID",
         });
       }
     })
@@ -146,6 +159,8 @@ router.get("/:orderId", (req, res, next) => {
       res.status(500).json({ error: err });
     });
 });
+
+
 
 router.delete("/:orderId", (req, res, next) => {
   const id = req.params.orderId;
