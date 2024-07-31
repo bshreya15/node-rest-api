@@ -4,12 +4,45 @@ const router = express.Router();
 const Product = require("../models/product");
 const mongoose = require("mongoose");
 
+const multer = require("multer");
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./uploads/");
+  },
+  filename: function (req, file, cb) {
+    cb(null, new Date().toISOString() + file.originalname);
+  },
+});
+
+const fileFilter = (req, file, cb) => {
+  //store file
+  if (
+    file.mimetype === "image/jpeg" ||
+    file.mimetype === "image/jpg" ||
+    file.mimetype === "image/png"
+  ) {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
+
+// const upload = multer({dest:'uploads/'});
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 1024 * 1024 * 5, //5mb
+  },
+  fileFilter: fileFilter,
+});
+
 router.get("/", (req, res, next) => {
   // res.status(200).json({
   //   message: "Handling GET requests in products route",
   // });
   Product.find()
-    .select("pName price _id")
+    .select("pName price _id productImg")
     .exec()
     .then((docs) => {
       // console.log(docs);
@@ -21,11 +54,12 @@ router.get("/", (req, res, next) => {
           return {
             pName: doc.pName,
             price: doc.price,
+            productImg: doc.producImg,
             _id: doc._id,
-            
+
             request: {
               type: "GET",
-              
+
               url: "http://localhost:3000/products/" + doc._id,
             },
           };
@@ -49,16 +83,19 @@ router.get("/", (req, res, next) => {
     });
 });
 
-router.post("/", (req, res, next) => {
+router.post("/", upload.single("productImg"), (req, res, next) => {
   // const product = {
   //     pName : req.body.pName,
   //     price : req.body.price
   // };
 
+  console.log(req.file);
+
   const product = new Product({
     _id: new mongoose.Types.ObjectId(),
     pName: req.body.pName,
     price: req.body.price,
+    producImg: req.file.path,
   });
   product
     .save()
@@ -99,7 +136,7 @@ router.get("/:productId", (req, res, next) => {
   // }
 
   Product.findById(id)
-    .select("pName price _id")
+    .select("pName price _id productImg")
     .exec()
     .then((doc) => {
       console.log("From database", doc);
@@ -168,7 +205,7 @@ router.delete("/:productId", (req, res, next) => {
     .exec()
     .then((result) => {
       res.status(200).json({
-        message: "Product deleted with id "+id,
+        message: "Product deleted with id " + id,
         request: {
           type: "DELETE",
           url: "http://localhost:3000/products/" + id,
