@@ -12,7 +12,7 @@ router.post("/signup", (req, res, next) => {
   User.find({ email: req.body.email })
     .exec()
     .then((user) => {
-      if (user.length >=1) {
+      if (user.length >= 1) {
         return res.status(409).json({
           message: "Account with this email already exists",
         });
@@ -47,4 +47,21 @@ router.post("/signup", (req, res, next) => {
       }
     });
 });
+
+router.delete("/:userId", (req, res, next) => {
+  User.deleteOne({ _id: req.params.userId })
+    .exec()
+    .then((result) => {
+      res.status(200).json({
+        message: "User deleted",
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).josn({
+        error: err,
+      });
+    });
+});
+
 module.exports = router;
