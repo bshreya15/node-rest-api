@@ -4,50 +4,10 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const Order = require("../models/order");
 const Product = require("../models/product");
+const OrdersController = require("../controllers/orders");
+const checkAuth = require("../middleware/check-auth");
 
-
-router.get("/", (req, res, next) => {
-  // res.status(200).json({
-  //   message: "Handling GET requests in orders route",
-  // });
-
-  Order.find()
-    .select("product quantity _id")
-    .populate('product','pName')
-    .exec()
-    .then((docs) => {
-      const response = {
-        count: docs.length,
-        description: "Get all orders",
-        orders: docs.map((doc) => {
-          return {
-            _id: doc._id,
-            product: doc.product,
-            quantity: doc.quantity,
-            request: {
-              type: "GET",
-              url: "http://localhost:3000/orders/" + doc._id,
-            },
-          };
-        }),
-      };
-
-      if (docs.length >= 0) {
-        // res.status(200).json(docs);
-        res.status(200).json(response);
-      } else {
-        res.status(404).json({
-          message: "No entries found",
-        });
-      }
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(500).json({
-        error: err,
-      });
-    });
-});
+router.get("/", checkAuth, OrdersController.orders_get_all);
 
 router.post("/", (req, res, next) => {
   // const order = {
