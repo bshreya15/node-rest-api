@@ -37,6 +37,8 @@ const upload = multer({
   fileFilter: fileFilter,
 });
 
+const checkAuth = require("../middleware/check-auth");
+
 router.get("/", (req, res, next) => {
   // res.status(200).json({
   //   message: "Handling GET requests in products route",
@@ -83,7 +85,7 @@ router.get("/", (req, res, next) => {
     });
 });
 
-router.post("/", upload.single("productImg"), (req, res, next) => {
+router.post("/", checkAuth, upload.single("productImg"), ( req, res, next) => {
   // const product = {
   //     pName : req.body.pName,
   //     price : req.body.price

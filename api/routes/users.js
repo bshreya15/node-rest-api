@@ -8,8 +8,6 @@ const jwt = require("jsonwebtoken");
 const process = require("../../nodemon.json");
 
 const User = require("../models/user");
-// const Product = require("../models/product");
-// const product = require("../models/product");
 
 router.post("/signup", (req, res, next) => {
   User.find({ email: req.body.email })
@@ -91,7 +89,7 @@ router.post("/login", (req, res, next) => {
     })
     .catch((err) => {
       console.log(err);
-      res.status(500).josn({
+      res.status(500).json({
         error: err,
       });
     });
@@ -107,7 +105,7 @@ router.delete("/:userId", (req, res, next) => {
     })
     .catch((err) => {
       console.log(err);
-      res.status(500).josn({
+      res.status(500).json({
         error: err,
       });
     });
